@@ -72,7 +72,7 @@ export default class QueryExport {
   async getChecksum(conn) {
     const fields = this.getFields();
     await conn.execute("SET SESSION group_concat_max_len = 1000000000");
-    const query = `SELECT MD5(GROUP_CONCAT(CONCAT_WS(',', ${fields.map(field => field.name)}))) AS checksum FROM ${this.getTarget()}`;
+    const query = `SELECT MD5(GROUP_CONCAT(CONCAT_WS(',', ${fields.map(field => field.name)}) SEPARATOR '\n')) AS checksum FROM ${this.getTarget()}`;
     const [rows] = await conn.execute(query);
 
     return rows[0].checksum;
@@ -89,11 +89,9 @@ export default class QueryExport {
           // Remove the header when we read this
           chunk = chunk.slice(firstLine + 1);
         }
-        // Remove all newlines to match MySQL's MD5 output
-        chunk = bufferReplace(chunk, "\n", ",");
 
         chunks.push(chunk);
-
+        
         chunkPos++
       })
       stream.on("end", () => {
