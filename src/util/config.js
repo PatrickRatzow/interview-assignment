@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-const configPath = path.join(__dirname, "../config/default.json")
+const configPath = path.join(__dirname, "../../config/default.json")
 
 class Config {
   constructor() {
