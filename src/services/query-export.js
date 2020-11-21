@@ -106,7 +106,7 @@ export default class QueryExport {
     })
   }
 
-  async exportToFile(options) {
+  async exportToFile(options = {}) {
     const chunkSize = options.chunkSize || 10000;
     const deleteRows = (options.deleteRows === true || options.deleteRows === undefined) ? true : false;
     
@@ -122,7 +122,10 @@ export default class QueryExport {
       await conn.rollback();
       await conn.release();
 
-      return false;
+      return {
+        success: false,
+        msg: "No rows to process"
+      }
     }
     
     // Find out how many chunks we need
@@ -172,6 +175,11 @@ export default class QueryExport {
     // Release the connection back to the pool
     await conn.release();
 
-    return isDataValid;
+    return {
+      success: isDataValid,
+      msg: isDataValid
+        ? "Exported query data to a local file, and validated the data integrity of said file"
+        : "Data integrity check failed, rolling back changes"
+    }
   }
 }

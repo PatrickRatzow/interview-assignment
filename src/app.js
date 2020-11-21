@@ -1,8 +1,26 @@
 import QueryExport from "./services/query-export";
 
-(async () => {
-  const queryExport = new QueryExport("users", "SELECT id, firstName, lastName, email FROM users u");
-  const success = await queryExport.exportToFile();
+function printUsageHelp() {
+  console.error("Invalid input! You need to supply two arguments")
+  console.error("npm run start <file name> <sql query>")
+}
 
-  console.log(success ? "It worked!" : "It wasn't able to export this query :\\");
+(async () => {
+  const args = process.argv.slice(2);
+  const fileName = args[0];
+  const query = args[1];
+  if (fileName === undefined || query === undefined) {
+    printUsageHelp();
+
+    process.exit(0);
+  }
+
+  const queryExport = new QueryExport(fileName, query);
+  const { success, msg }= await queryExport.exportToFile();
+
+  if (success) {
+    console.log(msg);
+  } else {
+    console.error(msg);
+  }
 })();

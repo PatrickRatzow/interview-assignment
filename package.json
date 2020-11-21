@@ -5,7 +5,9 @@
   "main": "src/app.js",
   "scripts": {
     "test": "mocha --recursive --watch --require @babel/register ./test/**/*.js",
-    "start": "nodemon --exec babel-node src/app.js --ignore output/"
+    "dev": "nodemon --exec babel-node src/app.js --ignore output/",
+    "build": "babel src --out-dir dist",
+    "start": "node dist/app.js"
   },
   "repository": {
     "type": "git",
