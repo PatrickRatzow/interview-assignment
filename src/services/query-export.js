@@ -42,10 +42,6 @@ export default class QueryExport {
         alias = spaceAliasSplit[1];
       }
 
-      if (alias === undefined) {
-        alias = name;
-      }
-
       // Remove everything we don't want
       name = name.split(" ")[0];
 
@@ -117,7 +113,7 @@ export default class QueryExport {
       // Create stream to avoid having to use JSON, heavily reducing memory usage
       const stream = fs.createWriteStream(`${outputPath}/export.csv`)
       // Write a header with all the field names
-      stream.write(`${this.getFields().map(field => field.alias).join(",")}\n`)
+      stream.write(`${this.getFields().map(field => field.alias || field.name).join(",")}\n`)
 
       for (let i = 0; i < chunks; i++) {
         const offset = i * chunkSize;
