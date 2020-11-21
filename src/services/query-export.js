@@ -120,7 +120,7 @@ export default class QueryExport {
     if (rowsCount === 0) {
       // No rows to handle, just return
       await conn.rollback();
-      await conn.release();
+      conn.release();
 
       return {
         success: false,
@@ -173,7 +173,7 @@ export default class QueryExport {
     }
 
     // Release the connection back to the pool
-    await conn.release();
+    conn.release();
 
     return {
       success: isDataValid,
