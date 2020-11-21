@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec babel-node src/app.js"
+    "start": "nodemon --exec babel-node src/app.js --ignore output/"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
     "nodemon": "^2.0.6"
   },
   "dependencies": {
-    "mysql2": "^2.2.5"
+    "mysql2": "^2.2.5",
+    "sha.js": "^2.4.11"
   }
 }

@@ -1,9 +1,10 @@
 {
   "database": {
     "host": "localhost",
-    "username": "root",
+    "user": "root",
     "password": "root",
     "database": "cego_assignment",
-    "port": 3306
+    "port": 3306,
+    "waitForConnections": true
   }
 }
