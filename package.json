@@ -23,5 +23,8 @@
     "@babel/node": "^7.12.6",
     "@babel/preset-env": "^7.12.7",
     "nodemon": "^2.0.6"
+  },
+  "dependencies": {
+    "mysql2": "^2.2.5"
   }
 }
