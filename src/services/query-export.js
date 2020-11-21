@@ -1,7 +1,6 @@
 import pool from "../core/database-pool";
 import fs from "fs";
 import path from "path";
-import bufferReplace from "buffer-replace";
 import { verifyChecksum } from "./checksum";
 
 const outputPath = path.join(__dirname, "../../output")
