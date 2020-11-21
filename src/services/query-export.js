@@ -71,7 +71,7 @@ export default class QueryExport {
 
   async getChecksum(conn) {
     const fields = this.getFields();
-    await conn.execute("SET SESSION group_concat_max_len = 10000000");
+    await conn.execute("SET SESSION group_concat_max_len = 1000000000");
     const query = `SELECT MD5(GROUP_CONCAT(CONCAT_WS(',', ${fields.map(field => field.name)}))) AS checksum FROM ${this.getTarget()}`;
     const [rows] = await conn.execute(query);
 
@@ -84,7 +84,7 @@ export default class QueryExport {
       let chunkPos = 0;
       const chunks = [];
       stream.on("data", (chunk) => {
-        if (chunkPos == 0) {
+        if (chunkPos === 0) {
           const firstLine = chunk.indexOf("\n")
           // Remove the header when we read this
           chunk = chunk.slice(firstLine + 1);
@@ -99,14 +99,17 @@ export default class QueryExport {
       stream.on("end", () => {
         let data = Buffer.concat(chunks);
         data = data.slice(0, data.length - 1);
-        const isIntegral = verifyChecksum(checksum, data);
+        const isIntegral = verifyChecksum(checksum, data.toString());
 
         resolve(isIntegral);
       })
     })
   }
 
-  async exportToFile(chunkSize = 5) {
+  async exportToFile(options) {
+    const chunkSize = options.chunkSize || 10000;
+    const deleteRows = (options.deleteRows === true || options.deleteRows === undefined) ? true : false;
+    
     // Acquire connection from pool
     const conn = await pool.getConnection();
 
@@ -114,12 +117,12 @@ export default class QueryExport {
     await conn.beginTransaction();
 
     const rowsCount = await this.getRowsCount(conn);
-    if (rowsCount == 0) {
+    if (rowsCount === 0) {
       // No rows to handle, just return
       await conn.rollback();
       await conn.release();
 
-      return;
+      return false;
     }
     
     // Find out how many chunks we need
@@ -128,6 +131,9 @@ export default class QueryExport {
     const chunkQuery = `${this.query} LIMIT ? OFFSET ?`
     // Create stream to avoid having to use JSON, heavily reducing memory usage
     const path = this.getFilePath();
+    if (fs.existsSync(path)) {
+      fs.unlinkSync(path);
+    }
     const stream = fs.createWriteStream(path);
     // Write a header with all the field names
     stream.write(`${this.getFields().map(field => field.alias || field.name).join(",")}\n`)
@@ -151,7 +157,11 @@ export default class QueryExport {
 
     if (isDataValid) {
       // If valid we'll delete + commit the transction
-      await conn.execute(`DELETE FROM ${this.getTarget()}`);
+
+      // Option here, as we don't want to delete rows when testing if we're dealing with a huge table
+      if (deleteRows) {
+        await conn.execute(`DELETE FROM ${this.getTarget()}`);
+      }
       
       await conn.commit();
     } else {
