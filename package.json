@@ -1,0 +1,27 @@
+{
+  "name": "interview-assignment",
+  "version": "1.0.0",
+  "description": "Interview assignment for a job application at CEGO ApS",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec babel-node src/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PatrickRatzow/interview-assignment.git"
+  },
+  "author": "Patrick Ratzow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PatrickRatzow/interview-assignment/issues"
+  },
+  "homepage": "https://github.com/PatrickRatzow/interview-assignment#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.12.7",
+    "@babel/core": "^7.12.7",
+    "@babel/node": "^7.12.6",
+    "@babel/preset-env": "^7.12.7",
+    "nodemon": "^2.0.6"
+  }
+}
