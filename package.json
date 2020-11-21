@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "@babel/register": "^7.12.1",
-    "D": "^1.0.0",
     "buffer-replace": "^1.0.0",
     "chai": "^4.2.0",
     "md5": "^2.3.0",
