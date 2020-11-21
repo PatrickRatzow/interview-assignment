@@ -111,6 +111,8 @@ export default class QueryExport {
     // Acquire connection from pool
     const conn = await pool.getConnection();
 
+    // Setup database isolation level
+    await conn.execute("SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE");
     // Start transaction
     await conn.beginTransaction();
 
