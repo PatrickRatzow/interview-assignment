@@ -4,7 +4,7 @@
   "description": "Interview assignment for a job application at CEGO ApS",
   "main": "src/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --recursive --watch --require @babel/register ./test/**/*.js",
     "start": "nodemon --exec babel-node src/app.js --ignore output/"
   },
   "repository": {
@@ -21,11 +21,17 @@
     "@babel/cli": "^7.12.7",
     "@babel/core": "^7.12.7",
     "@babel/node": "^7.12.6",
+    "@babel/plugin-transform-runtime": "^7.12.1",
     "@babel/preset-env": "^7.12.7",
+    "@babel/runtime": "^7.12.5",
+    "mocha": "^8.2.1",
     "nodemon": "^2.0.6"
   },
   "dependencies": {
+    "@babel/register": "^7.12.1",
+    "D": "^1.0.0",
     "buffer-replace": "^1.0.0",
+    "chai": "^4.2.0",
     "md5": "^2.3.0",
     "mysql2": "^2.2.5"
   }
