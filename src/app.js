@@ -1,6 +1,6 @@
 import QueryExport from "./services/query-export";
 
 (async () => {
-  const queryExport = new QueryExport();
-  await queryExport.exportToFile("SELECT id, firstName, lastName, email FROM users");
+  const queryExport = new QueryExport("SELECT id u, firstName AS n2, lastName, email FROM users u");
+  await queryExport.exportToFile();
 })();
