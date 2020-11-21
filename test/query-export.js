@@ -20,7 +20,7 @@ describe("QueryExport", () => {
 
     expect(success).to.be.true;
   });
-  it("should succeed in exporting users table when using space AS alias", async () => {
+  it("should succeed in exporting users table when using AS alias", async () => {
     const exporter = new QueryExport("users_as_alias", "SELECT id AS identifier, firstName, lastName FROM users");
     const { success } = await exporter.exportToFile({ deleteRows: false });
 
