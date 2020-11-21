@@ -29,7 +29,7 @@ describe("QueryExport", () => {
   it("should succeed in fully exporting mega_users table", async () => {
     const exporter = new QueryExport("mega_users", "SELECT id, firstName, lastName, email FROM mega_users");
     // Increase chunk size as we're dealing with a lot more data now
-    const correct = await exporter.exportToFile({ chunkSize: 20000, deleteRows: false });
+    const correct = await exporter.exportToFile({ chunkSize: 200000, deleteRows: false });
 
     expect(correct).to.be.true;
   }).timeout(1000 * 60 * 2); // 2 minutes
