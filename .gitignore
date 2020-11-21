@@ -1,2 +1,2 @@
 node_modules
-output/export.csv
+output/*.csv

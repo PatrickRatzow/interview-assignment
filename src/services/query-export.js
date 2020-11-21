@@ -7,8 +7,17 @@ import { verifyChecksum } from "./checksum";
 const outputPath = path.join(__dirname, "../../output")
 
 export default class QueryExport {
-  constructor(query) {
+  constructor(name, query) {
+    // Try to sanitize it the best we quickly can do.
+    this.name = name.toLowerCase().replace(/ /g, "_")
+    if (!/^[a-z0-9_]*$/g.test(this.name) || !this.name.length) {
+      throw new Error("Only alphanumeric names are allowed!");
+    }
     this.query = query;
+  }
+
+  getFilePath() {
+    return `${outputPath}/${this.name}.csv`
   }
 
   getTarget() {
@@ -71,7 +80,7 @@ export default class QueryExport {
 
   async isDataValid(checksum) {
     return new Promise((resolve, reject) => {
-      const stream = fs.createReadStream(`${outputPath}/export.csv`);
+      const stream = fs.createReadStream(this.getFilePath());
       let chunkPos = 0;
       const chunks = [];
       stream.on("data", (chunk) => {
@@ -105,32 +114,38 @@ export default class QueryExport {
     await conn.beginTransaction();
 
     const rowsCount = await this.getRowsCount(conn);
-    if (rowsCount > 0) {
-      // Find out how many chunks we need
-      const chunks = Math.ceil(rowsCount / chunkSize);
-      // Create the query we will be using
-      const chunkQuery = `${this.query} LIMIT ? OFFSET ?`
-      // Create stream to avoid having to use JSON, heavily reducing memory usage
-      const stream = fs.createWriteStream(`${outputPath}/export.csv`)
-      // Write a header with all the field names
-      stream.write(`${this.getFields().map(field => field.alias || field.name).join(",")}\n`)
+    if (rowsCount == 0) {
+      // No rows to handle, just return
+      await conn.rollback();
+      await conn.release();
 
-      for (let i = 0; i < chunks; i++) {
-        const offset = i * chunkSize;
-        const [rows] = await conn.execute(chunkQuery, [chunkSize, offset]);
-
-        for (let j = 0; j < rows.length; j++) {
-          const row = rows[j];
-          const rowStr = Object.values(row).join(",")
-
-          stream.write(`${rowStr}\n`);
-        }
-      }
-
-      // Finish file
-      stream.end();
+      return;
     }
     
+    // Find out how many chunks we need
+    const chunks = Math.ceil(rowsCount / chunkSize);
+    // Create the query we will be using
+    const chunkQuery = `${this.query} LIMIT ? OFFSET ?`
+    // Create stream to avoid having to use JSON, heavily reducing memory usage
+    const path = this.getFilePath();
+    const stream = fs.createWriteStream(path);
+    // Write a header with all the field names
+    stream.write(`${this.getFields().map(field => field.alias || field.name).join(",")}\n`)
+    for (let i = 0; i < chunks; i++) {
+      const offset = i * chunkSize;
+      const [rows] = await conn.execute(chunkQuery, [chunkSize, offset]);
+
+      for (let j = 0; j < rows.length; j++) {
+        const row = rows[j];
+        const rowStr = Object.values(row).join(",")
+
+        stream.write(`${rowStr}\n`);
+      }
+    }
+
+    // Finish file
+    stream.end();
+
     const checksum = await this.getChecksum(conn);
     const isDataValid = await this.isDataValid(checksum);
 
@@ -146,5 +161,7 @@ export default class QueryExport {
 
     // Release the connection back to the pool
     await conn.release();
+
+    return isDataValid;
   }
 }
